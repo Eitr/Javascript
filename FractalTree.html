@@ -1,0 +1,110 @@
+
+<html>
+<head>
+	<title>Fractal Tree</title>
+	<style type="text/css">
+		body {
+			color: #FFF;
+			background-color: #000; 
+		}
+		#main {
+			float:left;
+			background:#000;
+			padding:10px;
+			margin:10px;
+		}
+		#sidebar {
+			float:left;
+			background:#626;
+			padding:10px;
+			margin:10px;
+			border-radius:20px;
+		}
+	</style>
+</head>
+<body onload="render();">
+	<div id="sidebar">
+	<form>
+		<!--
+			Location: x, y
+			Branches: min/max
+			Size: min/max
+			Start: length/width
+			Sacle%: min/max
+			Angle%: min/max
+			
+			Colors
+			Leaves
+			Shading
+		//-->
+		<table align=center>
+			<col width="200">
+			<col width="200">
+		<tr><td>
+		<label>Branches Min</label></td><td>
+		<label>Branches Max</label>
+		</tr><tr><td>
+		<input id="branchMinIn" type="range" min="1" max="4" value="2" step="1" oninput="updateValue('branchMin',this.value)" />
+		<label id="branchMin">2</label></td><td>
+		<input id="branchMaxIn" type="range" min="1" max="4" value="3" step="1" oninput="updateValue('branchMax',this.value)" />
+		<label id="branchMax">3</label></td>
+		</tr><tr><td>
+		<label>Size Min</label></td><td>
+		<label>Size Max</label>
+		</tr><tr><td>
+		<input id="sizeMinIn" type="range" min="1" max="20" value="6" step="1" oninput="updateValue('sizeMin',this.value)" />
+		<label id="sizeMin">6</label></td><td>
+		<input id="sizeMaxIn" type="range" min="1" max="20" value="10" step="1" oninput="updateValue('sizeMax',this.value)" />
+		<label id="sizeMax">10</label></td>
+		</tr><tr><td>
+		<label>Scale % Min</label></td><td>
+		<label>Scale % Max</label>
+		</tr>
+		<tr><td>
+		<input id="scaleMinIn" type="range" min="2" max="98" value="60" step="2" oninput="updateValue('scaleMin',this.value)" />
+		<label id="scaleMin">60</label></td><td>
+		<input id="scaleMaxIn" type="range" min="2" max="98" value="80" step="2" oninput="updateValue('scaleMax',this.value)" />
+		<label id="scaleMax">80</label></td>
+		</tr>
+		<tr><td>
+		<label>Angle % Min</label></td><td>
+		<label>Angle % Max</label>
+		</tr><tr><td>
+		<input id="angleMinIn" type="range" min="0" max="50" value="10" step="1" oninput="updateValue('angleMin',this.value)" />
+		<label id="angleMin">10</label></td><td>
+		<input id="angleMaxIn" type="range" min="0" max="50" value="35" step="1" oninput="updateValue('angleMax',this.value)" />
+		<label id="angleMax">35</label></td>
+		</tr><tr><td>
+		<label>Location X</label></td><td>
+		<label>Location Y</label>
+		</tr><tr><td>
+		<input id="locXIn" type="range" min="200" max="1000" value="540" step="20" oninput="updateValue('locX',this.value)" />
+		<label id="locX">540</label></td><td>
+		<input id="locYIn" type="range" min="0" max="200" value="60" step="5" oninput="updateValue('locY',this.value)" />
+		<label id="locY">60</label></td>
+		</tr><tr><td>
+		<label>Start Length</label></td><td>
+		<label>Start Width</label>
+		</tr><tr><td>
+		<input id="startLengthIn" type="range" min="1" max="300" value="300" step="1" oninput="updateValue('startLength',this.value)" />
+		<label id="startLength">300</label></td><td>
+		<input id="startWidthIn" type="range" min="1" max="50" value="24" step="1" oninput="updateValue('startWidth',this.value)" />
+		<label id="startWidth">24</label></td>
+		</tr><tr><td>
+		<div align=center><br><input type="button" value="Create" onclick="render();" /></div></td><td>
+		<label id="progress"></label></td>
+		</tr><tr><td>
+		<label></label></td><td>
+		<label id="stats"></label></td>
+		</tr>
+		
+		</table>
+		
+	</form>
+	</div>
+	<div id="main">
+	<canvas id="myCanvas" width="1000" height="800"></canvas>
+	</div>
+	<script src="FractalTree.js"></script>
+</body>
+</html>

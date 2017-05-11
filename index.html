@@ -1,0 +1,259 @@
+<html>
+	<head>
+		<title>Fractal Tree</title>
+		<style type="text/css">
+			body {
+				color: #FFF;
+				background-color: #000; 
+				overflow: hidden;
+			}
+			#main {
+				float: left;
+				background: #000;
+			}
+			#sidebar {
+				position: fixed;
+				x: 0;
+				y: 0;
+				background: #444;
+				opacity: 1;
+				padding: 2px;
+				margin: 2px;
+				border-radius: 20px;
+			}
+			label {
+				text-align: center;
+				display: block;
+			}
+			.header {
+				position: relative;
+				text-align: left;
+				width: 80px;
+				display: block;
+			}
+			input[type='range'] {
+				width: 80px;
+			}
+			form {
+				margin: 0;
+			}
+			.header .tooltip {
+				top: -5px;
+				left: 230px;
+				width: 400px;
+				visibility: hidden;
+				background-color: #333;
+				color: #eee;
+				text-align: center;
+				padding: 5px 0;
+				border-radius: 6px;
+				position: absolute;
+				z-index: 1;
+				border: 1px solid white;
+			}
+			.header:hover .tooltip {
+				visibility: visible;
+			}
+		</style>
+	</head>
+	<body onload="onLoad()">
+		<div id="sidebar">
+			<form>
+				<fieldset>
+					<legend>Min/Max Settings</legend>
+					<table>
+						<tr>
+							<td>
+								<div class="header">Breadth
+								  <span class="tooltip">Amount of branches to spawn off a previous branch</span>
+								</div>
+							</td>
+							<td>
+								<input id="branchMinIn" type="range" min="1" max="4" value="" step="1" oninput="updateMinMaxValue('branchMin',this.value)" />
+							</td>
+							<td>
+								<label id="branchMin"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+							</td>
+							<td>
+								<input id="branchMaxIn" type="range" min="1" max="4" value="" step="1" oninput="updateMinMaxValue('branchMax',this.value)" />
+							</td>
+							<td>
+								<label id="branchMax"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="header">Depth
+								  <span class="tooltip">Amount of branches linked together from the start</span>
+								</div>
+							</td>
+							<td>
+								<input id="sizeMinIn" type="range" min="1" max="20" value="" step="1" oninput="updateMinMaxValue('sizeMin',this.value)" />
+							</td>
+							<td>
+								<label id="sizeMin"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+							</td>
+							<td>
+								<input id="sizeMaxIn" type="range" min="1" max="20" value="" step="1" oninput="updateMinMaxValue('sizeMax',this.value)" />
+							</td>
+							<td>
+								<label id="sizeMax"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="header">Scale %
+								  <span class="tooltip">The fraction of length to pass on to the next branch</span>
+								</div>
+							</td>
+							<td>
+								<input id="scaleMinIn" type="range" min="2" max="98" value="" step="2" oninput="updateMinMaxValue('scaleMin',this.value)" />
+							</td>
+							<td>
+								<label id="scaleMin"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+							</td>
+							<td>
+								<input id="scaleMaxIn" type="range" min="2" max="98" value="" step="2" oninput="updateMinMaxValue('scaleMax',this.value)" />
+							</td>
+							<td>
+								<label id="scaleMax"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="header">Angle %
+								  <span class="tooltip">The angle at which the child branches will spawn</span>
+								</div>
+							</td>
+							<td>
+								<input id="angleMinIn" type="range" min="0" max="50" value="" step="1" oninput="updateMinMaxValue('angleMin',this.value)" />
+							</td>
+							<td>
+								<label id="angleMin"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+							</td>
+							<td>
+								<input id="angleMaxIn" type="range" min="0" max="50" value="" step="1" oninput="updateMinMaxValue('angleMax',this.value)" />
+							</td>
+							<td>
+								<label id="angleMax"></label>
+							</td>
+						</tr>
+					</table>
+				</fieldset>
+				<fieldset>
+					<legend>Positioning</legend>
+					<table>
+						<tr>
+							<td>
+								<div class="header">X Offset
+								  <span class="tooltip">Horizontal offset on the screen (in pixels)</span>
+								</div>
+							</td>
+							<td>
+								<input id="locXIn" type="range" min="200" max="1800" value="" step="20" oninput="updateValue('locX',this.value)" />
+							</td>
+							<td>
+								<label id="locX"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="header">Y Offset
+								  <span class="tooltip">Vertical offset on the screen (in pixels)</span>
+								</div>
+							</td>
+							<td>
+								<input id="locYIn" type="range" min="0" max="200" value="" step="5" oninput="updateValue('locY',this.value)" />
+							</td>
+							<td>
+								<label id="locY"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="header">Start Length
+								  <span class="tooltip">The height of the first branch (in pixels)</span>
+								</div>
+							</td>
+							<td>
+								<input id="startLengthIn" type="range" min="1" max="400" value="" step="1" oninput="updateValue('startLength',this.value)" />
+							</td>
+							<td>
+								<label id="startLength"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="header">Start Width
+								  <span class="tooltip">The width of the first branch (in pixels)</span>
+								</div>
+							</td>
+							<td>
+								<input id="startWidthIn" type="range" min="1" max="50" value="" step="1" oninput="updateValue('startWidth',this.value)" />
+							</td>
+							<td>
+								<label id="startWidth"></label>
+							</td>
+						</tr>
+					</table>
+				</fieldset>
+				<fieldset>
+					<legend>Color</legend>
+					<table>
+						<tr>
+							<td>
+								<input id="dynamicColor" type="radio" name="color" checked />Dynamic
+							</td>
+							<td>
+								<input id="staticColor" type="radio" name="color" />Static
+							</td>
+							<td>
+								<input id="flatColor" type="radio" name="color" />Flat
+							</td>
+						</tr>
+					</table>
+					<table>
+						<tr>
+							<td>
+								<div class="header">Range
+								  <span class="tooltip">The deviance in the color spectrum (for each r,g,b value)</span>
+								</div>
+							</td>
+							<td>
+								<input id="colorRangeIn" type="range" min="1" max="120" value="" step="1" oninput="updateValue('colorRange',this.value)" />
+							</td>
+							<td>
+								<label id="colorRange"></label>
+							</td>
+						</tr>
+					</table>
+				</fieldset>
+				<br>
+				<div align="center">
+					<input type="button" value="Create" onClick="render()" />
+					<label id="progress"></label>
+				</div>
+			</form>
+		</div>
+		<div id="main">
+			<canvas id="canvas" width="1600" height="600"></canvas>
+		</div>
+		<script src="FractalTree.js"></script>
+	</body>
+</html>

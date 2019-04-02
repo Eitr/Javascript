@@ -1,6 +1,11 @@
+<!-- Michael Short 2017 - Recursive Fractal Tree Generator -->
 <html>
 	<head>
 		<title>Fractal Tree</title>
+		<meta charset="UTF-8">
+		<meta name="description" content="Randomized fractal tree generator with various inputs">
+		<meta name="keywords" content="HTML,CSS,JavaScript,Fractal,Tree,Generator,Canvas">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style type="text/css">
 			body {
 				color: #FFF;
@@ -11,7 +16,15 @@
 				float: left;
 				background: #000;
 			}
+			#showPanel {
+				display: block;
+				position: fixed;
+				x: 0;
+				y: 0;
+				float: left;
+			}
 			#sidebar {
+				display: none;
 				position: fixed;
 				x: 0;
 				y: 0;
@@ -34,13 +47,16 @@
 			input[type='range'] {
 				width: 80px;
 			}
+			td input[type='button'] {
+				width: 100%;
+			}
 			form {
 				margin: 0;
 			}
 			.header .tooltip {
 				top: -5px;
 				left: 230px;
-				width: 400px;
+				width: 500px;
 				visibility: hidden;
 				background-color: #333;
 				color: #eee;
@@ -54,11 +70,26 @@
 			.header:hover .tooltip {
 				visibility: visible;
 			}
+			fieldset {
+				padding: 2px;
+				margin: 2px;
+			}
 		</style>
 	</head>
-	<body onload="onLoad()">
-		<div id="sidebar">
+	<body onload="defaultTree()">
+		<input id="showPanel" type="button" value="Show Panel" onClick="showPanel()" />
+		<div id="sidebar" align="center">
 			<form>
+				<table>
+					<tr>
+						<td align="left">
+							<input type="button" value="Hide Panel" onClick="hidePanel()" />
+						</td align="right"s>
+						<td>
+							<input type="button" value="Create Tree" onClick="render()" />
+						</td>
+					</tr>
+				</table>
 				<fieldset>
 					<legend>Min/Max Settings</legend>
 					<table>
@@ -134,7 +165,7 @@
 						<tr>
 							<td>
 								<div class="header">Angle %
-								  <span class="tooltip">The angle at which the child branches will spawn</span>
+								  <span class="tooltip">The angle at which the child branches will spawn (-90° to 90°)</span>
 								</div>
 							</td>
 							<td>
@@ -205,7 +236,7 @@
 								</div>
 							</td>
 							<td>
-								<input id="startWidthIn" type="range" min="1" max="50" value="" step="1" oninput="updateValue('startWidth',this.value)" />
+								<input id="startWidthIn" type="range" min="1" max="80" value="" step="1" oninput="updateValue('startWidth',this.value)" />
 							</td>
 							<td>
 								<label id="startWidth"></label>
@@ -236,7 +267,7 @@
 								</div>
 							</td>
 							<td>
-								<input id="colorRangeIn" type="range" min="1" max="120" value="" step="1" oninput="updateValue('colorRange',this.value)" />
+								<input id="colorRangeIn" type="range" min="1" max="80" value="" step="1" oninput="updateValue('colorRange',this.value)" />
 							</td>
 							<td>
 								<label id="colorRange"></label>
@@ -244,11 +275,58 @@
 						</tr>
 					</table>
 				</fieldset>
-				<br>
-				<div align="center">
-					<input type="button" value="Create" onClick="render()" />
-					<label id="progress"></label>
-				</div>
+				<fieldset>
+					<legend>Other</legend>
+					<table>
+						<tr>
+							<td>
+								<div class="header">Time Delay
+								  <span class="tooltip">Interval between drawing more branches (in milliseconds)</span>
+								</div>
+							</td>
+							<td>
+								<input id="fpsIn" type="range" min="5" max="120" value="" step="5" oninput="updateValue('fps',this.value)" />
+							</td>
+							<td>
+								<label id="fps"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="header">Redraw Delay
+								  <span class="tooltip">Interval between drawing a new tree (in seconds)</span>
+								</div>
+							</td>
+							<td>
+								<input id="redrawIn" type="range" min="0" max="120" value="" step="1" oninput="updateValue('redraw',this.value)" />
+							</td>
+							<td>
+								<label id="redraw"></label>
+							</td>
+						</tr>
+					</table>
+				</fieldset>
+				<fieldset>
+					<legend>Presets</legend>
+					<table align="center">
+						<tr>
+							<td><input type="button" value="Default" onClick="defaultTree()" /></td>
+							<td><input type="button" value="Square" onClick="squareTree()" /></td>
+							<td><input type="button" value="Lanky" onClick="lankyTree()" /></td>
+						</tr>
+						<tr>
+							<td><input type="button" value="Bushy" onClick="bushyTree()" /></td>
+							<td><input type="button" value="Sprout" onClick="sproutTree()" /></td>
+							<td><input type="button" value="Shrub" onClick="shrubTree()" /></td>
+						</tr>
+						<tr>
+							<td><input type="button" value="Cartoon" onClick="cartoonTree()" /></td>
+							<td><input type="button" value="Art" onClick="artTree()" /></td>
+							<td><input type="button" value="Random" onClick="randomTree()" /></td>
+						</tr>
+					</table>
+				</fieldset>
+				<label id="progress"></label>
 			</form>
 		</div>
 		<div id="main">

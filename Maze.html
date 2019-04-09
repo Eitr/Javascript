@@ -41,7 +41,7 @@
 			.header {
 				position: relative;
 				text-align: left;
-				width: 80px;
+				width: 100px;
 				display: block;
 			}
 			input[type='range'] {
@@ -55,7 +55,7 @@
 			}
 			.header .tooltip {
 				top: -5px;
-				left: 230px;
+				right: 120px;
 				width: 500px;
 				visibility: hidden;
 				background-color: #333;
@@ -77,16 +77,19 @@
 		</style>
 	</head>
 	<body onload="render()">
-		<input id="showPanel" type="button" value="Show Panel" onClick="showPanel()" />
+		<input id="showPanel" type="button" value="Show" onClick="showPanel()" />
 		<div id="sidebar" align="center">
 			<form>
 				<table>
 					<tr>
 						<td align="left">
-							<input type="button" value="Hide Panel" onClick="hidePanel()" />
+							<input type="button" value="Hide" onClick="hidePanel()" />
 						</td align="right"s>
 						<td>
 							<input type="button" value="Create" onClick="render()" />
+						</td>
+						<td>
+							<input type="button" value="Solve" onClick="solveMaze()" />
 						</td>
 					</tr>
 				</table>
@@ -95,38 +98,24 @@
 					<table>
 						<tr>
 							<td>
-								<div class="header">Width
-								  <span class="tooltip">Horizontal grid size</span>
+								<div class="header">Size (px)
+								  <span class="tooltip">Individual grid block size</span>
 								</div>
 							</td>
 							<td>
-								<input id="gridXIn" type="range" min="10" max="200" value="65" step="2" oninput="updateValue('gridX',this.value)" />
+								<input id="sizeIn" type="range" min="4" max="64" value="24" step="2" oninput="updateValue('size',this.value)" />
 							</td>
 							<td>
-								<label id="gridX"></label>
+								<label id="size"></label>
 							</td>
 						</tr>
-						<tr>
-							<td>
-								<div class="header">Height
-								  <span class="tooltip">Vertical grid size</span>
-								</div>
-							</td>
-							<td>
-								<input id="gridYIn" type="range" min="10" max="200" value="33" step="2" oninput="updateValue('gridY',this.value)" />
-							</td>
-							<td>
-								<label id="gridY"></label>
-							</td>
-						</tr>
-						<tr>
 							<td>
 								<div class="header">Split %
 								  <span class="tooltip">Probability of splitting off the main path</span>
 								</div>
 							</td>
 							<td>
-								<input id="splitIn" type="range" min="0" max="100" value="20" step="1" oninput="updateValue('split',this.value)" />
+								<input id="splitIn" type="range" min="0" max="50" value="1" step="1" oninput="updateValue('split',this.value)" />
 							</td>
 							<td>
 								<label id="split"></label>
@@ -135,11 +124,11 @@
 						<tr>
 							<td>
 								<div class="header">Dead %
-								  <span class="tooltip">Probability of dead ending of the main path</span>
+								  <span class="tooltip">Probability of dead end occurring on path</span>
 								</div>
 							</td>
 							<td>
-								<input id="deadIn" type="range" min="0" max="50" value="5" step="1" oninput="updateValue('dead',this.value)" />
+								<input id="deadIn" type="range" min="0" max="50" value="0" step="1" oninput="updateValue('dead',this.value)" />
 							</td>
 							<td>
 								<label id="dead"></label>
@@ -147,7 +136,7 @@
 						</tr>
 						<tr>
 							<td>
-								<div class="header">Draw Speed
+								<div class="header">Draw Delay
 								  <span class="tooltip">Interval between drawing more branches (in milliseconds)</span>
 								</div>
 							</td>
@@ -160,15 +149,25 @@
 						</tr>
 						<tr>
 							<td>
-								<div class="header">Solve Speed
+								<div class="header">Solve Delay
 								  <span class="tooltip">Interval between drawing the correct route (in milliseconds)</span>
 								</div>
 							</td>
 							<td>
-								<input id="spdIn" type="range" min="0" max="120" value="50" step="5" oninput="updateValue('spd',this.value)" />
+								<input id="spdIn" type="range" min="0" max="120" value="5" step="5" oninput="updateValue('spd',this.value)" />
 							</td>
 							<td>
 								<label id="spd"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="header">Should Solve
+									<span class="tooltip">Whether auto solving is enabled</span>
+								</div>
+							</td>
+							<td colspan="2">
+								<input id="shouldSolve" type="checkbox" name="solve" checked />
 							</td>
 						</tr>
 					</table>

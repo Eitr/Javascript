@@ -20,15 +20,14 @@
 			#showPanel {
 				display: block;
 				position: fixed;
-				x: 0;
-				y: 0;
-				float: left;
+				top: 0;
+				right: 0;
 			}
 			#sidebar {
 				display: none;
 				position: fixed;
-				x: 0;
-				y: 0;
+				top: 0;
+				right: 0;
 				background: #444;
 				opacity: 1;
 				padding: 2px;
@@ -101,7 +100,7 @@
 								</div>
 							</td>
 							<td>
-								<input id="gridXIn" type="range" min="10" max="200" value="65" step="1" oninput="updateValue('gridX',this.value)" />
+								<input id="gridXIn" type="range" min="10" max="200" value="65" step="2" oninput="updateValue('gridX',this.value)" />
 							</td>
 							<td>
 								<label id="gridX"></label>
@@ -114,7 +113,7 @@
 								</div>
 							</td>
 							<td>
-								<input id="gridYIn" type="range" min="10" max="200" value="33" step="1" oninput="updateValue('gridY',this.value)" />
+								<input id="gridYIn" type="range" min="10" max="200" value="33" step="2" oninput="updateValue('gridY',this.value)" />
 							</td>
 							<td>
 								<label id="gridY"></label>
@@ -167,6 +166,6 @@
 		<div id="main">
 			<canvas id="canvas" width="1600" height="600"></canvas>
 		</div>
-		<script src="main.js"></script>
+		<script src="Maze.js"></script>
 	</body>
 </html>

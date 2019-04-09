@@ -1,0 +1,172 @@
+ 
+<!-- Michael Short 2019 - Recursive Maze Generator -->
+<html>
+	<head>
+		<title>Maze Generator</title>
+		<meta charset="UTF-8">
+		<meta name="description" content="Randomized maze generator with various inputs">
+		<meta name="keywords" content="HTML,CSS,JavaScript,Maze,Generator,Canvas">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<style type="text/css">
+			body {
+				color: #FFF;
+				background-color: #000; 
+				overflow: hidden;
+			}
+			#main {
+				float: left;
+				background: #000;
+			}
+			#showPanel {
+				display: block;
+				position: fixed;
+				x: 0;
+				y: 0;
+				float: left;
+			}
+			#sidebar {
+				display: none;
+				position: fixed;
+				x: 0;
+				y: 0;
+				background: #444;
+				opacity: 1;
+				padding: 2px;
+				margin: 2px;
+				border-radius: 20px;
+			}
+			label {
+				text-align: center;
+				display: block;
+			}
+			.header {
+				position: relative;
+				text-align: left;
+				width: 80px;
+				display: block;
+			}
+			input[type='range'] {
+				width: 80px;
+			}
+			td input[type='button'] {
+				width: 100%;
+			}
+			form {
+				margin: 0;
+			}
+			.header .tooltip {
+				top: -5px;
+				left: 230px;
+				width: 500px;
+				visibility: hidden;
+				background-color: #333;
+				color: #eee;
+				text-align: center;
+				padding: 5px 0;
+				border-radius: 6px;
+				position: absolute;
+				z-index: 1;
+				border: 1px solid white;
+			}
+			.header:hover .tooltip {
+				visibility: visible;
+			}
+			fieldset {
+				padding: 2px;
+				margin: 2px;
+			}
+		</style>
+	</head>
+	<body onload="render()">
+		<input id="showPanel" type="button" value="Show Panel" onClick="showPanel()" />
+		<div id="sidebar" align="center">
+			<form>
+				<table>
+					<tr>
+						<td align="left">
+							<input type="button" value="Hide Panel" onClick="hidePanel()" />
+						</td align="right"s>
+						<td>
+							<input type="button" value="Create" onClick="render()" />
+						</td>
+					</tr>
+				</table>
+				<fieldset>
+					<legend>Positioning</legend>
+					<table>
+						<tr>
+							<td>
+								<div class="header">Width
+								  <span class="tooltip">Horizontal grid size</span>
+								</div>
+							</td>
+							<td>
+								<input id="gridXIn" type="range" min="10" max="200" value="65" step="1" oninput="updateValue('gridX',this.value)" />
+							</td>
+							<td>
+								<label id="gridX"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="header">Height
+								  <span class="tooltip">Vertical grid size</span>
+								</div>
+							</td>
+							<td>
+								<input id="gridYIn" type="range" min="10" max="200" value="33" step="1" oninput="updateValue('gridY',this.value)" />
+							</td>
+							<td>
+								<label id="gridY"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="header">Split %
+								  <span class="tooltip">Probability of splitting off the main path</span>
+								</div>
+							</td>
+							<td>
+								<input id="splitIn" type="range" min="0" max="100" value="20" step="1" oninput="updateValue('split',this.value)" />
+							</td>
+							<td>
+								<label id="split"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="header">Dead %
+								  <span class="tooltip">Probability of dead ending of the main path</span>
+								</div>
+							</td>
+							<td>
+								<input id="deadIn" type="range" min="0" max="50" value="5" step="1" oninput="updateValue('dead',this.value)" />
+							</td>
+							<td>
+								<label id="dead"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="header">Speed
+								  <span class="tooltip">Interval between drawing more branches (in milliseconds)</span>
+								</div>
+							</td>
+							<td>
+								<input id="fpsIn" type="range" min="0" max="120" value="5" step="5" oninput="updateValue('fps',this.value)" />
+							</td>
+							<td>
+								<label id="fps"></label>
+							</td>
+						</tr>
+					</table>
+				</fieldset>
+				<label id="progress"></label>
+			</form>
+		</div>
+		<div id="main">
+			<canvas id="canvas" width="1600" height="600"></canvas>
+		</div>
+		<script src="main.js"></script>
+	</body>
+</html>

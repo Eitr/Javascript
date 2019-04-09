@@ -1,12 +1,11 @@
  
-/* Michael Short 2017 - Recursive Fractal Tree Generator */
+/* Michael Short 2019 - Recursive Maze Generator */
 
 // Graphics elments
 let canvas = getElem("canvas");
 let sidebar = getElem("sidebar");
 let showButton = getElem("showPanel");
 let g2d = canvas.getContext("2d");
-let r,g,b;
 
 // List of label names
 const otherLabels = ["gridX","gridY","split","dead","fps"];
@@ -25,7 +24,8 @@ let pendingStack = [];
 let busy;
 let curInterval = 0;
 let fps;
-let grid = [], size = 0;
+let grid = [];
+let size = 0;
 const BLANK = 0;
 const WALL = 1;
 const PATH = 2;
@@ -35,10 +35,6 @@ let endPoint;
 // Shortcut for getting html element
 function getElem(x) {
 	return document.getElementById(x);
-}
-// Util for keeping rgb values in the range [0-255]
-function clampColor(x) {
-	return Math.min(255,Math.max(0,x));;
 }
 // Hides the left side panel
 function hidePanel() {
@@ -77,6 +73,7 @@ function render() {
 	}
 	curStack = [];
 	nextStack = [];
+	pendingStack = [];
 	
 	// Prepare the graphics canvas
 	g2d.clearRect(0,0,canvas.width,canvas.height);
@@ -85,8 +82,6 @@ function render() {
 	
 	// Initialize the grid
 	size = Math.floor(Math.min(canvas.height/gridY.value,canvas.width/gridX.value));
-	// g2d.fillStyle = "rgb(55,0,0)";
-	// g2d.fillRect(0, 0, gridX.value*size, gridY.value*size);
 	for(let x=0; x<gridX.value; x++) {
 		if(!grid[x]) { grid[x] = []; }
 		for(let y=0; y<gridY.value; y++) {
@@ -111,6 +106,7 @@ function render() {
 
 // Function called from the interval timer, generates a batch of branches at a time
 let nextFrame = function() {
+	// Progress eedback
 	feedback = " (fps:"+parseInt(1000 / ((new Date) - fps))+")";
 	updateValue("progress",feedback);
 	fps = new Date;
@@ -119,12 +115,15 @@ let nextFrame = function() {
 	
 	const curStack = [...nextStack];
 	nextStack = [];
+	// If there's no more points, we're done
 	if(!curStack.length && !pendingStack.length) {
 		clearInterval(curInterval);
 	} else {
+		// If the current path is empty, grab one from pending
 		if(!curStack.length) {
 			curStack.push(pendingStack.pop());
 		}
+		// Generate the next path on each current block
 		curStack.forEach(function(branch, i) {
 			generateBranch(branch);
 		});
@@ -132,169 +131,66 @@ let nextFrame = function() {
 	busy = false;
 }
 
+// Draw a location on the maze grid
 function drawBlock(nx,ny,type) {
 	grid[nx][ny] = type;
 	switch(type) {
-		case PATH: g2d.fillStyle = "rgb(205,205,205)"; break;
-		case WALL: g2d.fillStyle = "rgb(0,0,0)"; break;
-		case BLANK: 
-			r = parseInt(Math.random()*20)+55;
-			g = parseInt(Math.random()*20)+55;
-			b = parseInt(Math.random()*20)+55;
-			g2d.fillStyle = `rgb(${r},${g},${b})`;
-			break;
+		case PATH: setFillStyle(20,20,20,200,200,200); break;
+		case WALL: setFillStyle(0,0,0); break;
+		case BLANK: setFillStyle(40,40,40,20,20,20); break;
 	}
 	g2d.fillRect(nx*size, ny*size, size, size);
 }
 
 // Generates a new branch from a previous one
 function generateBranch([x, y]) {
-	// console.log(x,y);
+
+	// Check if we're at the end
+	if(x === endPoint[0] && y === endPoint[1]) { return; }
+	
+	// Up, down, left, right
 	let dirs = [
-		[ 1, 0 ],
-		[-1, 0 ],
-		[ 0, 1 ],
 		[ 0,-1 ],
+		[ 0, 1 ],
+		[-1, 0 ],
+		[ 1, 0 ],
 	];
+	// Randomize which direction we go first
 	shuffleArray(dirs);
 
+	// Iterate backwards because we're removing elements
 	for(let i=dirs.length-1; i>=0; i--) {
-		let [ox,oy] = dirs[i];
-		dirs.pop();
+		// Work with one direction at a time
+		let [ox,oy] = dirs.pop();
+
+		// Check for a dead end path
 		if(Math.random() < dead.value/100) { break; }
+
+		// Validate new location
 		let nx = x+ox*2;
 		let ny = y+oy*2;
 		if(nx < 0 || ny < 0 || nx >= gridX.value || ny >= gridY.value) { continue; }
 		if(grid[nx][ny] !== BLANK) { continue; }
+
+		// Create new path location
 		let type = PATH;
 		drawBlock(nx-ox,ny-oy,type);
 		drawBlock(nx,ny,type);
+
+		// Add this point to the stack to continue the path
 		nextStack.push([nx,ny]);
-		if(Math.random() < split.value/100) { continue; }
-		break;
+
+		// Check if we need to split the path
+		if(Math.random() > split.value/100) { break; }
 	}
-	
-	pendingLocs = dirs.map(([dx,dy]) => {
-		// console.log(dx,dy,x,y);
-		return [x+dx*2,y+dy*2];
-	});
-	// console.log(pendingStack);
-	// pendingStack = pendingLocs.concat(pendingStack);
+
+	// If we didn't cover all directions, add this root point to the pending list
 	if(dirs.length) {
 		pendingStack = [[x,y]].concat(pendingStack);
 	}
 
-	
-	// Set randomized color by mode
-	// let colorScale = colorRange.value;
-	// let xr = parseInt((Math.random()*colorScale)-(colorScale/2));
-	// let xg = parseInt((Math.random()*colorScale)-(colorScale/2));
-	// let xb = parseInt((Math.random()*colorScale)-(colorScale/2));
-	
-	// if(getElem("dynamicColor").checked) {
-	// 	r = clampColor(r+xr);
-	// 	g = clampColor(g+xg);
-	// 	b = clampColor(b+xb);
-	// 	g2d.strokeStyle = "rgb("+r+", "+g+", "+b+")";
-	// } else if(getElem("staticColor").checked) {
-	// 	g2d.strokeStyle = "rgb("+clampColor(r+xr)+", "+clampColor(g+xg)+", "+clampColor(b+xb)+")";
-	// } else {
-	// 	g2d.strokeStyle = "rgb("+r+", "+g+", "+b+")";
-	// }
-	
-	// g2d.fillRect(130, 190, 40, 60);
-
-	// Draw on 2d graphics canvas
-	// g2d.beginPath();
-	// g2d.moveTo(root.x,root.y);
-	// g2d.lineWidth = parseInt(width);
-	// g2d.lineTo(x,y,length);
-	// g2d.stroke();
-	
-	// if() { return; }
-	// curStack.push(newBranch);
 }
 
-
-
-/*	Functions for generating the next branch properties.
-	Gets a value randomly selected between the min and max limits. */
-	
-function getRandomInRange(min,max) {
-	return Math.round(Math.random()*(parseInt(max.value)-parseInt(min.value))+parseInt(min.value));
-}
-function getLength(prevLength) {
-	return (getRandomInRange(scaleMin,scaleMax)/100*prevLength);
-}
-function getAngle(prevAngle, dir) {
-	if(dir == 0) { return prevAngle; }
-	return (getRandomInRange(angleMin,angleMax)/100*Math.PI*dir + prevAngle);
-}
-function getBranches() {
-	return getRandomInRange(branchMin,branchMax);
-}
-function getSize() {
-	return getRandomInRange(sizeMin,sizeMax);
-}
-
-
-
-
-
-
-/* Preset functions for specific types of trees */
-// function defaultSettings() {
-// 	locX.value = document.body.clientWidth/2;
-// 	startLength.value = document.body.clientHeight/3;
-// 	locY.value = 20;
-// 	frameTime.value = 20;
-// 	redrawTime.value = 0;
-// }
-
-// function defaultTree() {
-// 	defaultSettings();
-	
-// 	branchMin.value = 2;
-// 	branchMax.value = 4;
-// 	sizeMin.value = 6;
-// 	sizeMax.value = 16;
-// 	scaleMin.value = 66;
-// 	scaleMax.value = 80;
-// 	angleMin.value = 10;
-// 	angleMax.value = 25;
-// 	startWidth.value = 16;
-// 	colorRange.value = 12;
-	
-// 	updateAllValues();
-// 	render();
-// }
-
-
-// function randomTree() {
-// 	defaultSettings();
-	
-// 	function randomInt(min, max) {
-// 		min = Math.ceil(min);
-// 		max = Math.floor(max);
-// 		return Math.floor(Math.random() * (max - min + 1)) + min;
-// 	}
-	
-// 	branchMin.value = randomInt(branchMin.min,branchMin.max);
-// 	branchMax.value = randomInt(branchMin.value,branchMax.max);
-// 	sizeMin.value = randomInt(sizeMin.min,sizeMin.max);
-// 	sizeMax.value = randomInt(sizeMin.value,sizeMax.max);
-// 	scaleMin.value = randomInt(scaleMin.min,scaleMin.max);
-// 	scaleMax.value = randomInt(scaleMin.value,scaleMax.max);
-// 	angleMin.value = randomInt(angleMin.min,angleMin.max);
-// 	angleMax.value = randomInt(angleMin.value,angleMax.max);
-// 	startLength.value = randomInt(startLength.min,startLength.max);
-// 	startWidth.value = randomInt(startWidth.min,startWidth.max);
-// 	colorRange.value = randomInt(colorRange.min,colorRange.max);
-// 	frameTime.value = 5;
-	
-// 	updateAllValues();
-// 	render();
-// }
 
 function shuffleArray(array) {
     for(let i = array.length - 1; i > 0; i--) {
@@ -305,9 +201,11 @@ function shuffleArray(array) {
     }
 }
 
-function getRandomOdd(range) {
-	let number;
-	do { number = Math.floor(Math.random()*range); }
-	while( number % 2 == 0 );
-	return number;
+function setFillStyle(r,g,b,or,og,ob) {
+	if(or !== undefined || og !== undefined || ob !== undefined) {
+		r = parseInt(Math.random()*r)+or;
+		g = parseInt(Math.random()*g)+og;
+		b = parseInt(Math.random()*b)+ob;
+	}
+	g2d.fillStyle = `rgb(${r},${g},${b})`;
 }

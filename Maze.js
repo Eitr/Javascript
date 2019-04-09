@@ -8,7 +8,7 @@ let showButton = getElem("showPanel");
 let g2d = canvas.getContext("2d");
 
 // List of label names
-const otherLabels = ["gridX","gridY","split","dead","fps"];
+const otherLabels = ["gridX","gridY","split","dead","fps","spd"];
 
 // Label 
 let gridX = getElem("gridXIn");
@@ -16,6 +16,7 @@ let gridY = getElem("gridYIn");
 let split = getElem("splitIn");
 let dead = getElem("deadIn");
 let frameTime = getElem("fpsIn");
+let frameTimeSolve = getElem("spdIn");
 
 // Recursive properties
 let curStack = [];
@@ -26,9 +27,9 @@ let curInterval = 0;
 let fps;
 let grid = [];
 let size = 0;
-const BLANK = 0;
-const WALL = 1;
-const PATH = 2;
+const WALL = 0;
+const PATH = 1;
+const TRACE = 2;
 let startPoint;
 let endPoint;
 
@@ -59,6 +60,15 @@ function updateAllValues() {
 	});
 }
 
+function solveMaze() {
+	// if(curInterval !== 0 || curStack.length !== 0) { return; }
+
+	// curStack = [startPoint];
+	// curInterval = setInterval(recursePath, frameTimeSolve.value);
+	drawBlock(startPoint[0],startPoint[1],TRACE);
+	recursePath(startPoint);
+}
+
 // Starts the generation of a maze
 function render() {
 	updateAllValues();
@@ -68,7 +78,7 @@ function render() {
 	getElem("canvas").height = document.body.clientHeight-20;
 	
 	// Stop any current maze being drawn
-	if(curInterval != 0) {
+	if(curInterval !== 0) {
 		clearInterval(curInterval);
 	}
 	curStack = [];
@@ -85,8 +95,8 @@ function render() {
 	for(let x=0; x<gridX.value; x++) {
 		if(!grid[x]) { grid[x] = []; }
 		for(let y=0; y<gridY.value; y++) {
-			grid[x][y] = BLANK;
-			drawBlock(x,y,BLANK);
+			grid[x][y] = WALL;
+			drawBlock(x,y,WALL);
 		}
 	}
 	startPoint = [1,1];
@@ -118,6 +128,7 @@ let nextFrame = function() {
 	// If there's no more points, we're done
 	if(!curStack.length && !pendingStack.length) {
 		clearInterval(curInterval);
+		solveMaze();
 	} else {
 		// If the current path is empty, grab one from pending
 		if(!curStack.length) {
@@ -136,8 +147,8 @@ function drawBlock(nx,ny,type) {
 	grid[nx][ny] = type;
 	switch(type) {
 		case PATH: setFillStyle(20,20,20,200,200,200); break;
-		case WALL: setFillStyle(0,0,0); break;
-		case BLANK: setFillStyle(40,40,40,20,20,20); break;
+		case WALL: setFillStyle(40,40,40,20,20,20); break;
+		case TRACE: setFillStyle(20,20,20,120,120,220); break;
 	}
 	g2d.fillRect(nx*size, ny*size, size, size);
 }
@@ -170,7 +181,7 @@ function generateBranch([x, y]) {
 		let nx = x+ox*2;
 		let ny = y+oy*2;
 		if(nx < 0 || ny < 0 || nx >= gridX.value || ny >= gridY.value) { continue; }
-		if(grid[nx][ny] !== BLANK) { continue; }
+		if(grid[nx][ny] !== WALL) { continue; }
 
 		// Create new path location
 		let type = PATH;
@@ -208,4 +219,47 @@ function setFillStyle(r,g,b,or,og,ob) {
 		b = parseInt(Math.random()*b)+ob;
 	}
 	g2d.fillStyle = `rgb(${r},${g},${b})`;
+}
+
+function pathFinding() {
+	// curStack
+}
+
+function recursePath([x,y]) {
+
+	// Check if we're at the end
+	if(x === endPoint[0] && y === endPoint[1]) { return true; }
+	
+	// Up, down, left, right
+	let dirs = [
+		[ 0,-1 ],
+		[ 0, 1 ],
+		[-1, 0 ],
+		[ 1, 0 ],
+	];
+
+	// Iterate backwards because we're removing elements
+	for(let i=dirs.length-1; i>=0; i--) {
+		// Work with one direction at a time
+		let [ox,oy] = dirs.pop();
+
+		// Validate new location
+		let nx = x+ox;
+		let ny = y+oy;
+		if(nx < 0 || ny < 0 || nx >= gridX.value || ny >= gridY.value) { continue; }
+		if(grid[nx][ny] !== PATH) { continue; }
+
+		// Draw trail
+		drawBlock(nx,ny,TRACE);
+
+		// Continue down trail
+		const finished = recursePath([nx,ny]);
+
+		// If we found the end, break out of the recursion
+		if(finished) { return true; }
+
+		// Else we're backing up, hide the bad trail
+		drawBlock(nx,ny,PATH);
+	}
+
 }

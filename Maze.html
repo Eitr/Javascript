@@ -147,7 +147,7 @@
 						</tr>
 						<tr>
 							<td>
-								<div class="header">Speed
+								<div class="header">Draw Speed
 								  <span class="tooltip">Interval between drawing more branches (in milliseconds)</span>
 								</div>
 							</td>
@@ -156,6 +156,19 @@
 							</td>
 							<td>
 								<label id="fps"></label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<div class="header">Solve Speed
+								  <span class="tooltip">Interval between drawing the correct route (in milliseconds)</span>
+								</div>
+							</td>
+							<td>
+								<input id="spdIn" type="range" min="0" max="120" value="50" step="5" oninput="updateValue('spd',this.value)" />
+							</td>
+							<td>
+								<label id="spd"></label>
 							</td>
 						</tr>
 					</table>

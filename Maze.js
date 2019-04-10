@@ -26,12 +26,15 @@ let curInterval;
 let fps;
 let grid = [];
 let gridTrace = [];
+let gridDraw = [];
 
 // Block type enums
 const WALL = 0;
 const PATH = 1;
 const TRACE = 2;
-const PREV = 3;
+const TRACE_PREV = 3;
+const DRAW = 4;
+const DRAW_PREV = 5;
 
 // Display props
 let size;
@@ -39,6 +42,7 @@ let width;
 let height;
 let startPoint;
 let endPoint;
+let m = {x:-1,y:-1};
 
 // Shortcut for getting html element
 function getElem(x) {
@@ -124,6 +128,12 @@ function render() {
 			drawBlock(x,y,WALL);
 		}
 	}
+	for(let x=0; x<width; x++) {
+		if(!gridDraw[x]) { gridDraw[x] = []; }
+		for(let y=0; y<height; y++) {
+			gridDraw[x][y] = PATH;
+		}
+	}
 	startPoint = [1,1];
 	endPoint = [width-2,height-2];
 	console.log('RENDER',width,height,canvas.width,canvas.height,size);
@@ -170,14 +180,22 @@ let nextFrame = function() {
 
 // Draw a location on the maze grid
 function drawBlock(nx,ny,type) {
-	if(type !== TRACE && type !== PREV) {
+	if(type === WALL || type === PATH) {
 		grid[nx][ny] = type;
+	} else if(type === TRACE || type === TRACE_PREV) {
+		// Record where we've been, so we don't retrace our steps
+		gridTrace[nx][ny] = WALL;
+	} else if(type === DRAW || type === DRAW_PREV) {
+		gridDraw[nx][ny] = DRAW;
 	}
+
 	switch(type) {
 		case PATH: setFillStyle(20,20,20,200,200,200); break;
 		case WALL: setFillStyle(40,40,40,20,20,20); break;
 		case TRACE: setFillStyle(20,20,20,120,120,220); break;
-		case PREV: setFillStyle(20,20,20,220,120,120); break;
+		case TRACE_PREV: setFillStyle(20,20,20,220,120,120); break;
+		case DRAW: setFillStyle(20,20,20,220,120,220); break;
+		case DRAW_PREV: setFillStyle(20,20,20,220,220,120); break;
 	}
 	g2d.fillRect(nx*size, ny*size, size, size);
 }
@@ -209,7 +227,7 @@ function generateBranch([x, y]) {
 		// Validate new location
 		let nx = x+ox*2;
 		let ny = y+oy*2;
-		if(nx < 0 || ny < 0 || nx >= width || ny >= height) { continue; }
+		if(invalidLocation(nx,ny)) { continue; }
 		if(grid[nx][ny] !== WALL) { continue; }
 
 		// Create new path location
@@ -264,7 +282,7 @@ function pathFinding() {
 		}
 		
 		// Else backup where we came
-		drawBlock(...last,PREV);
+		drawBlock(...last,TRACE_PREV);
 		nextStack.push(curStack.pop());
 	}
 	
@@ -292,6 +310,8 @@ function recursePath([x,y]) {
 		[-1, 0 ],
 		[ 1, 0 ],
 	];
+	// Randomize which direction we go first
+	shuffleArray(dirs);
 
 	// Iterate backwards because we're removing elements
 	for(let i=dirs.length-1; i>=0; i--) {
@@ -301,11 +321,8 @@ function recursePath([x,y]) {
 		// Validate new location
 		let nx = x+ox;
 		let ny = y+oy;
-		if(nx < 0 || ny < 0 || nx >= width || ny >= height) { continue; }
+		if(invalidLocation(nx,ny)) { continue; }
 		if(gridTrace[nx][ny] !== PATH) { continue; }
-		
-		// Record where we've been, so we don't retrace our steps
-		gridTrace[nx][ny] = WALL;
 
 		// Draw trail
 		drawBlock(nx,ny,TRACE);
@@ -313,4 +330,42 @@ function recursePath([x,y]) {
 		break;
 	}
 
+}
+
+function invalidLocation(nx,ny) {
+	return (nx < 0 || ny < 0 || nx >= width || ny >= height);
+}
+
+
+function updateMouse(event) {
+	const rect = canvas.getBoundingClientRect();
+	m.x = Math.floor((event.clientX - rect.left) / size);
+	m.y = Math.floor((event.clientY - rect.top) / size);
+	drawing();
+}
+
+function drawing() {
+	if(invalidLocation(m.x,m.y)) { return; }
+
+	// Up, down, left, right
+	let dirs = [
+		[ 0,-1 ],
+		[ 0, 1 ],
+		[-1, 0 ],
+		[ 1, 0 ],
+	];
+	// Check if current mouse position is near existing drawn path
+	dirs = dirs.filter(([ox,oy]) => {
+		const nx = m.x + ox;
+		const ny = m.y + oy;
+		return !invalidLocation(nx,ny) && gridDraw[nx][ny] === DRAW;
+	});
+	
+	const atStart = (m.x === startPoint[0] && m.y === startPoint[1]);
+	const nearPath = dirs.length > 0;
+	const onPath = grid[m.x][m.y] === PATH;
+	
+	if(atStart || (nearPath && onPath)) {
+		drawBlock(m.x,m.y,DRAW);
+	}
 }

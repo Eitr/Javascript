@@ -103,7 +103,7 @@
 								</div>
 							</td>
 							<td>
-								<input id="sizeIn" type="range" min="4" max="64" value="24" step="2" oninput="updateValue('size',this.value)" />
+								<input id="sizeIn" type="range" min="1" max="50" value="22" step="1" oninput="updateValue('size',this.value)" />
 							</td>
 							<td>
 								<label id="size"></label>
@@ -176,7 +176,7 @@
 			</form>
 		</div>
 		<div id="main">
-			<canvas id="canvas" width="1600" height="600"></canvas>
+			<canvas id="canvas" width="1600" height="600" onmousemove="updateMouse(event)"></canvas>
 		</div>
 		<script src="Maze.js"></script>
 	</body>

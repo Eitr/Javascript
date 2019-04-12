@@ -36,9 +36,11 @@ function loop() {
 	// Update the current time
 	const date = new Date();
 	dayOfWeek = date.getDay();
-	const curHour = date.getHours()%12;
-	const curMin = date.getMinutes();
+	let curHour = date.getHours();
+	let curMin = date.getMinutes();
 	isNight = curHour < 7 || curHour > 19;
+	// Convert to 12-hour format, replace 0 with 12 (must be after isNight)
+	curHour = (curHour-1+12)%12 + 1;
 	bigDisplay.setTime(curHour,curMin);
 	
 	bigDisplay.animate();
@@ -58,7 +60,7 @@ function paintComponent() {
 	g2d.textAlign = "center";
 	const gap = canvas.width/9;
 	let weekx = gap*1.5; 
-	let weeky = 100;
+	let weeky = 80;
 	const days = ["S","M","T","W","R","F","S"];
 	days.forEach(d => {
 		g2d.fillText(d,weekx,weeky);
@@ -67,7 +69,7 @@ function paintComponent() {
 
 	// Draws a box around the current day of the week
 	g2d.lineWidth = 4;
-	g2d.strokeRect(gap*dayOfWeek+gap,120,gap,2);
+	g2d.strokeRect(gap*dayOfWeek+gap,100,gap,2);
 }
 
 
